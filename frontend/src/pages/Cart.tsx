@@ -45,40 +45,56 @@ export default function Cart({ cart, onUpdateQty, onRemove }: Props) {
       <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>カート</h2>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: '2rem' }}>
-        {cart.map(item => (
-          <div key={item.product.id} style={{
-            background: 'var(--white)',
-            border: '1px solid var(--border)',
-            borderRadius: 6,
-            padding: '1rem 1.25rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-          }}>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontWeight: 500 }}>{item.product.name}</p>
-              <p style={{ fontSize: '0.85rem', color: 'var(--gray)' }}>¥{item.product.price.toLocaleString()} / 点</p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {cart.map(item => {
+          const isAtMaxStock = item.quantity >= item.product.stock
+          return (
+            <div key={item.product.id} style={{
+              background: 'var(--white)',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+              padding: '1rem 1.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+            }}>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontWeight: 500 }}>{item.product.name}</p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--gray)' }}>¥{item.product.price.toLocaleString()} / 点</p>
+                {isAtMaxStock && (
+                  <p style={{ fontSize: '0.78rem', color: '#c0392b', marginTop: 4 }}>在庫上限に達しています</p>
+                )}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button
+                  onClick={() => item.quantity > 1 ? onUpdateQty(item.product.id, item.quantity - 1) : onRemove(item.product.id)}
+                  style={{ width: 28, height: 28, background: 'var(--paper)', border: '1px solid var(--border)', borderRadius: 4, fontSize: '1rem', cursor: 'pointer' }}
+                >−</button>
+                <span style={{ minWidth: 28, textAlign: 'center', fontWeight: 500 }}>{item.quantity}</span>
+                <button
+                  onClick={() => onUpdateQty(item.product.id, item.quantity + 1)}
+                  disabled={isAtMaxStock}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    background: isAtMaxStock ? 'var(--border)' : 'var(--paper)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 4,
+                    fontSize: '1rem',
+                    cursor: isAtMaxStock ? 'not-allowed' : 'pointer',
+                    color: isAtMaxStock ? 'var(--gray)' : 'inherit'
+                  }}
+                >＋</button>
+              </div>
+              <p style={{ minWidth: 80, textAlign: 'right', fontWeight: 600 }}>
+                ¥{(item.product.price * item.quantity).toLocaleString()}
+              </p>
               <button
-                onClick={() => item.quantity > 1 ? onUpdateQty(item.product.id, item.quantity - 1) : onRemove(item.product.id)}
-                style={{ width: 28, height: 28, background: 'var(--paper)', border: '1px solid var(--border)', borderRadius: 4, fontSize: '1rem' }}
-              >−</button>
-              <span style={{ minWidth: 28, textAlign: 'center', fontWeight: 500 }}>{item.quantity}</span>
-              <button
-                onClick={() => onUpdateQty(item.product.id, item.quantity + 1)}
-                style={{ width: 28, height: 28, background: 'var(--paper)', border: '1px solid var(--border)', borderRadius: 4, fontSize: '1rem' }}
-              >＋</button>
+                onClick={() => onRemove(item.product.id)}
+                style={{ color: 'var(--gray)', background: 'none', fontSize: '1.1rem', padding: '4px', cursor: 'pointer' }}
+              >×</button>
             </div>
-            <p style={{ minWidth: 80, textAlign: 'right', fontWeight: 600 }}>
-              ¥{(item.product.price * item.quantity).toLocaleString()}
-            </p>
-            <button
-              onClick={() => onRemove(item.product.id)}
-              style={{ color: 'var(--gray)', background: 'none', fontSize: '1.1rem', padding: '4px' }}
-            >×</button>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* 合計 */}
@@ -117,6 +133,7 @@ export default function Cart({ cart, onUpdateQty, onRemove }: Props) {
             borderRadius: 4,
             fontSize: '0.9rem',
             fontWeight: 600,
+            cursor: 'pointer'
           }}
         >注文を確定する</button>
       </div>
