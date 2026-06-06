@@ -16,8 +16,7 @@ def calculate_total(price: float, quantity: int, tax_rate: float) -> float:
         税込み合計金額
     """
     subtotal = price * quantity
-    # Bug: tax_rate をそのまま掛けているため、税込み金額ではなく税額だけを返してしまっている
-    total = subtotal * tax_rate
+    total = subtotal * (1 + tax_rate)
     return total
 
 
