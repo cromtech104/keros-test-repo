@@ -1,0 +1,32 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream:   #faf7f2;
+  --paper:   #f0ebe0;
+  --brown:   #2c1a0e;
+  --amber:   #c8720a;
+  --amber-l: #e8a040;
+  --gray:    #7a6a5a;
+  --border:  #ddd5c5;
+  --white:   #ffffff;
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--cream);
+  color: var(--brown);
+  line-height: 1.6;
+}
+
+h1, h2, h3 {
+  font-family: 'Playfair Display', serif;
+}
+
+a { color: inherit; text-decoration: none; }
+
+button {
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
