@@ -125,7 +125,7 @@ export default function Cart({ cart, onUpdateQty, onRemove }: Props) {
           color: 'var(--gray)',
         }}>買い物を続ける</Link>
         <button
-          onClick={() => { alert('ご注文ありがとうございます！'); navigate('/') }}
+          onClick={() => navigate('/checkout')}
           style={{
             padding: '11px 32px',
             background: 'var(--amber)',
@@ -135,7 +135,7 @@ export default function Cart({ cart, onUpdateQty, onRemove }: Props) {
             fontWeight: 600,
             cursor: 'pointer'
           }}
-        >注文を確定する</button>
+        >お届け先を入力する</button>
       </div>
     </main>
   )

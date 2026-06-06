@@ -1,11 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
-import { CartItem } from '../types'
 
-interface Props { cart: CartItem[] }
+interface Props { cartCount: number }
 
-export default function Header({ cart }: Props) {
+export default function Header({ cartCount }: Props) {
   const loc = useLocation()
-  const totalItems = cart.reduce((s, i) => s + i.quantity, 0)
 
   return (
     <header style={{
@@ -32,15 +30,15 @@ export default function Header({ cart }: Props) {
           fontWeight: 500,
         }}>商品一覧</Link>
         <Link to="/cart" style={{
-          background: totalItems > 0 ? '#c8720a' : 'transparent',
-          color: totalItems > 0 ? '#ffffff' : '#ddd5c5',
-          border: `1px solid ${totalItems > 0 ? '#c8720a' : '#ddd5c5'}`,
+          background: cartCount > 0 ? '#c8720a' : 'transparent',
+          color: cartCount > 0 ? '#ffffff' : '#ddd5c5',
+          border: `1px solid ${cartCount > 0 ? '#c8720a' : '#ddd5c5'}`,
           borderRadius: 4,
           padding: '6px 16px',
           fontSize: '0.9rem',
           fontWeight: 500,
         }}>
-          カート {totalItems > 0 && `(${totalItems})`}
+          カート {cartCount > 0 && `(${cartCount})`}
         </Link>
       </nav>
     </header>

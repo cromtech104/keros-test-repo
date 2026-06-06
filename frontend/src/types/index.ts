@@ -5,6 +5,8 @@ export interface Product {
   stock: number
   category: string
   description: string
+  longDescription?: string
+  origin?: string
 }
 
 export interface CartItem {
