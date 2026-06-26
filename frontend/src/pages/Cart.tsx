@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { useMemo } from 'react'
 import { CartItem } from '../types'
 
 const TAX_RATE = 0.1
@@ -11,9 +12,14 @@ interface Props {
 
 export default function Cart({ cart, onUpdateQty, onRemove }: Props) {
   const navigate = useNavigate()
-  const subtotal = cart.reduce((s, i) => s + i.product.price * i.quantity, 0)
-  const tax = Math.floor(subtotal * TAX_RATE)
-  const total = subtotal + tax
+  
+  // 合計金額の計算をuseMemoでメモ化し、cart配列の変更時に確実に再計算されるようにする
+  const { subtotal, tax, total } = useMemo(() => {
+    const subtotal = cart.reduce((s, i) => s + i.product.price * i.quantity, 0)
+    const tax = Math.floor(subtotal * TAX_RATE)
+    const total = subtotal + tax
+    return { subtotal, tax, total }
+  }, [cart])
 
   if (cart.length === 0) {
     return (
