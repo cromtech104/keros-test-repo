@@ -1,6 +1,7 @@
 """
 注文金額の計算モジュール
 """
+from inventory import reserve_stock
 
 
 def calculate_total(price: float, quantity: int, tax_rate: float) -> float:
@@ -33,6 +34,48 @@ def apply_discount(price: float, discount_rate: float) -> float:
         割引後の価格
     """
     return price * (1 - discount_rate)
+
+
+def confirm_order(order_id: str, product_id: str, quantity: int, price: float, tax_rate: float, inventory: dict) -> dict:
+    """
+    注文を確定し、在庫を減算する。
+
+    Args:
+        order_id: 注文ID
+        product_id: 商品ID
+        quantity: 注文数量
+        price: 単価
+        tax_rate: 税率（例: 0.1 = 10%）
+        inventory: 在庫情報 {product_id: stock_count}
+
+    Returns:
+        注文確定結果を含む辞書
+        {
+            'order_id': 注文ID,
+            'product_id': 商品ID,
+            'quantity': 注文数量,
+            'total_amount': 税込み合計金額,
+            'status': 'confirmed',
+            'remaining_stock': 残在庫数
+        }
+
+    Raises:
+        ValueError: 在庫不足の場合
+    """
+    # 在庫を減算
+    updated_inventory = reserve_stock(product_id, quantity, inventory)
+    
+    # 合計金額を計算
+    total_amount = calculate_total(price, quantity, tax_rate)
+    
+    return {
+        'order_id': order_id,
+        'product_id': product_id,
+        'quantity': quantity,
+        'total_amount': total_amount,
+        'status': 'confirmed',
+        'remaining_stock': updated_inventory.get(product_id, 0)
+    }
 
 
 def cancel_order(order_id: str, order_amount: float, cancellation_fee_rate: float = 0.0) -> dict:
