@@ -16,7 +16,7 @@ def check_stock(product_id: str, requested_quantity: int, inventory: dict) -> bo
         注文可能な場合 True
     """
     current_stock = inventory.get(product_id, 0)
-    return current_stock > requested_quantity
+    return current_stock >= requested_quantity
 
 
 def reserve_stock(product_id: str, quantity: int, inventory: dict) -> dict:
