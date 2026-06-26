@@ -1,7 +1,8 @@
 """
 order.py のテスト
 """
-from order import calculate_total, apply_discount, cancel_order, calculate_cancellation_fee
+from order import calculate_total, apply_discount, cancel_order, calculate_cancellation_fee, confirm_order
+import pytest
 
 
 def test_calculate_total_with_tax():
@@ -54,15 +55,98 @@ def test_calculate_cancellation_fee_no_fee():
     assert result == 0.0, f"Expected 0.0, got {result}"
 
 
+def test_confirm_order_success():
+    # 在庫10、注文2 → 成功、残在庫8
+    inventory = {"ITEM001": 10}
+    result = confirm_order(
+        order_id="ORD001",
+        product_id="ITEM001",
+        quantity=2,
+        price=1000.0,
+        tax_rate=0.1,
+        inventory=inventory
+    )
+    assert result['order_id'] == "ORD001"
+    assert result['product_id'] == "ITEM001"
+    assert result['quantity'] == 2
+    assert result['total_amount'] == 2200.0
+    assert result['status'] == 'confirmed'
+    assert result['remaining_stock'] == 8
+    assert inventory["ITEM001"] == 8, "在庫が減算されていない"
+
+
+def test_confirm_order_exact_stock():
+    # 在庫1、注文1 → 成功、残在庫0
+    inventory = {"ITEM001": 1}
+    result = confirm_order(
+        order_id="ORD002",
+        product_id="ITEM001",
+        quantity=1,
+        price=1000.0,
+        tax_rate=0.1,
+        inventory=inventory
+    )
+    assert result['status'] == 'confirmed'
+    assert result['remaining_stock'] == 0
+    assert inventory["ITEM001"] == 0
+
+
+def test_confirm_order_insufficient_stock():
+    # 在庫1、注文2 → ValueError
+    inventory = {"ITEM001": 1}
+    with pytest.raises(ValueError, match="在庫不足"):
+        confirm_order(
+            order_id="ORD003",
+            product_id="ITEM001",
+            quantity=2,
+            price=1000.0,
+            tax_rate=0.1,
+            inventory=inventory
+        )
+    # エラー時は在庫が減らない
+    assert inventory["ITEM001"] == 1
+
+
+def test_confirm_order_twice_should_fail():
+    # チケットの再現手順：在庫1の商品を1点注文後、もう一度注文すると失敗するはず
+    inventory = {"ITEM001": 1}
+    
+    # 1回目の注文は成功
+    result1 = confirm_order(
+        order_id="ORD001",
+        product_id="ITEM001",
+        quantity=1,
+        price=1000.0,
+        tax_rate=0.1,
+        inventory=inventory
+    )
+    assert result1['status'] == 'confirmed'
+    assert inventory["ITEM001"] == 0
+    
+    # 2回目の注文は失敗
+    with pytest.raises(ValueError, match="在庫不足"):
+        confirm_order(
+            order_id="ORD002",
+            product_id="ITEM001",
+            quantity=1,
+            price=1000.0,
+            tax_rate=0.1,
+            inventory=inventory
+        )
+
+
 if __name__ == "__main__":
     print("=== テスト実行 ===")
     print(f"calculate_total(1000, 2, 0.1) = {calculate_total(1000, 2, 0.1)}")
     print(f"期待値: 2200.0")
     print(f"apply_discount(1000, 0.1) = {apply_discount(1000, 0.1)}")
     print(f"期待値: 900.0")
-    print("
-=== キャンセル機能テスト ===")
+    print("\n=== キャンセル機能テスト ===")
     print(f"cancel_order('ORD001', 2200.0, 0.0) = {cancel_order('ORD001', 2200.0, 0.0)}")
     print(f"cancel_order('ORD002', 2200.0, 0.1) = {cancel_order('ORD002', 2200.0, 0.1)}")
     print(f"calculate_cancellation_fee(2200.0, 0.1) = {calculate_cancellation_fee(2200.0, 0.1)}")
     print(f"期待値: 220.0")
+    print("\n=== 注文確定テスト ===")
+    inventory = {"ITEM001": 10}
+    print(f"confirm_order('ORD001', 'ITEM001', 2, 1000.0, 0.1, inventory) = {confirm_order('ORD001', 'ITEM001', 2, 1000.0, 0.1, inventory)}")
+    print(f"残在庫: {inventory['ITEM001']}")
